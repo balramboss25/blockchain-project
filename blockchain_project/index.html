@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" type="img/png" href="./icon.png">
+        <title>Digital Locker</title>
+        <style type=text/css>
+        body{
+    margin: 0;
+    padding: 0;
+    background: url(background.png);
+    background-size: 320;
+    background-position: center;
+    font-family: sans-serif;
+}
+ .login-box{
+    width: 320px;
+    height: 420px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    box-sizing: border-box;
+    padding: 70px 30px;
+} 
+.avatar{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: absolute;
+    top: -50px;
+    left: calc(50% - 50px);
+}
+h1{
+    margin: 0;
+    padding: 0 0 20px;
+    text-align: center;
+    font-size: 22px;
+}
+.login-box p{
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+}
+.login-box input{
+    width: 100%;
+    margin-bottom: 20px;
+}
+.login-box input[type="text"]
+{
+    border: none;
+    border-bottom: 1px solid #fff;
+    background: transparent;
+    outline: none;
+    height: 40px;
+    color: #fff;
+    font-size: 16px;
+}
+.login-box input[type="submit"]
+{
+    border: none;
+    outline: none;
+    height: 40px;
+    background: #1c8adb;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+}
+.login-box input[type="submit"]:hover
+{
+    cursor: pointer;
+    background: #39dc79;
+    color: #000;
+}
+
+.login-box a{
+    text-decoration: none;
+    font-size: 14px;
+    color: #fff;
+}
+.login-box a:hover
+{
+    color: #39dc79;
+}
+
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <img src="avatar.png" class="avatar">
+                <h1>Sign Up</h1>
+                    <form action="/dashboard.html" onsubmit="return registration();">
+                        <p>Name</p>
+                        <input type="text" id="name" placeholder="Enter name">
+                        <p>Registration No.</p>
+                        <input type="text" id="reg" placeholder="Enter Reg. No.">
+                        <input type="submit" value="Sign Up"> 
+                    </form>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" crossorigin="anonymous"></script>
+
+    <script>
+        var contract,acc,owner;;
+        $(document).ready(function(){
+            var address='0x73d342D678B3e29fC3aE1EfBaFB4637BF52D45f2'
+            var abi=[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "Name",
+				"type": "string"
+			},
+			{
+				"name": "Reg",
+				"type": "uint256"
+			}
+		],
+		"name": "createUser",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userProfiles",
+		"outputs": [
+			{
+				"name": "acc",
+				"type": "address"
+			},
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "reg",
+				"type": "uint256"
+			},
+			{
+				"name": "present",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "getAllUser",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "expiryTime",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "userAcc",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "RequestLockerAccess",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "RevokeAccessFromThirdParty",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "State",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "serveSharingrequest",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "contractOwner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "ReleaseLockerAccess",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "applicationName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "workflowName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "originatingAddress",
+				"type": "address"
+			}
+		],
+		"name": "WorkbenchContractCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "applicationName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "workflowName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "action",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "originatingAddress",
+				"type": "address"
+			}
+		],
+		"name": "WorkbenchContractUpdated",
+		"type": "event"
+	}
+];
+            web3 = new Web3(web3.currentProvider)
+            contract=new web3.eth.Contract(abi,address);
+            web3.eth.getAccounts().then(function(accs){
+                acc=accs[0];
+                console.log(acc);
+            })
+            contract.methods.contractOwner().call().then(function(val){
+                    owner=val;
+                    console.log(owner);
+            })
+        })
+        function registration(){
+            var name=$('#name').val();
+            var reg=$('#reg').val();
+            if(name===''){
+                alert('Please Enter name');
+                return false;
+            }
+            else if(reg==='' || reg.length<8){
+                alert('Please enter valid Reg. No.');
+                return false;
+            }
+            else if(acc==owner){
+                    alert('Not Accessible to contractOwner');
+                    return false;
+                }
+                
+            else{
+                    contract.methods.createUser(name,reg).send({from:acc});   
+                }
+            }
+
+    </script>
+</html>

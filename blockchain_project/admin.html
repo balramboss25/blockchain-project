@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<title>Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+<div id="users" class="w3-container">
+  <h2>Users List</h2>
+  <ul class="w3-ul w3-card-4">
+    <!-- <span onclick="requestPermission()">
+        <li class="w3-bar">
+        <img src="img_avatar.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px">
+            <div class="w3-bar-item">
+                <span class="w3-large">Mike</span><br>
+                <span>Web Designer</span>
+            </div>
+        </li>
+    </span> -->
+    </ul>
+</div>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" crossorigin="anonymous"></script>
+    <script>
+        var contract,acc,owner,users;
+        $(document).ready(function(){
+            var address="0x73d342D678B3e29fC3aE1EfBaFB4637BF52D45f2";
+            var abi=[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "Name",
+				"type": "string"
+			},
+			{
+				"name": "Reg",
+				"type": "uint256"
+			}
+		],
+		"name": "createUser",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userProfiles",
+		"outputs": [
+			{
+				"name": "acc",
+				"type": "address"
+			},
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "reg",
+				"type": "uint256"
+			},
+			{
+				"name": "present",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "getAllUser",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "expiryTime",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "userAcc",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "RequestLockerAccess",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "RevokeAccessFromThirdParty",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "State",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "serveSharingrequest",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "contractOwner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "ReleaseLockerAccess",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "applicationName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "workflowName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "originatingAddress",
+				"type": "address"
+			}
+		],
+		"name": "WorkbenchContractCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "applicationName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "workflowName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "action",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "originatingAddress",
+				"type": "address"
+			}
+		],
+		"name": "WorkbenchContractUpdated",
+		"type": "event"
+	}
+];
+            web3= new Web3(web3.currentProvider);
+            contract=new web3.eth.Contract(abi,address);
+            web3.eth.getAccounts().then(function(accs){
+                acc=accs[0];
+            })
+            contract.methods.contractOwner().call().then(function(val){
+                owner=val;
+            })
+            if(acc!=owner){
+                alert('Not Accessible:Only for contract Owners');
+            }
+            contract.methods.getAllUser().call().then(function(userList){
+                userList.forEach(element => {
+                contract.methods.userProfiles(element).call().then(function(u){
+                    $('#users ul').append('<span onclick=\"(requestPermission(\'' + u.name  + ',' + u.reg  + ',' + u.acc  + '\'))"\><li class="w3-bar"><img src="img_avatar.png" class="w3-bar-item w3-circle w3-hide-small" style="width:85px" /><div class="w3-bar-item"><span class="w3-large">'+u.name+'</span><br /><span>'+u.reg+'</span></div></li></span>'
+                    );
+                }) 
+            });
+            })
+            
+        })
+        function requestPermission(arg){
+            val=arg.split(",")
+            flag=confirm("Access locker for "+val[0]+"("+val[1]+")");
+            if(flag)
+            {
+                contract.methods.RequestLockerAccess(val[2]).send({from:acc});
+            }
+        }
+    </script>
+</body>
+</html>
